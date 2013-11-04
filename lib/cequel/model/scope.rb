@@ -33,12 +33,14 @@ module Cequel
             data_set.each(&block)
           end
         else
+          puts __method__
           to_enum(:each_row)
         end
       end
 
       def find_in_batches(options = {})
         unless ::Kernel.block_given?
+          puts __method__
           return to_enum(:find_in_batches, options)
         end
         find_rows_in_batches(options) do |batch|
@@ -48,6 +50,7 @@ module Cequel
       end
 
       def find_rows_in_batches(options = {}, &block)
+        puts __method__
         return to_enum(:find_rows_in_batches, options) if block.nil?
         batch_size = options[:batch_size] || 1000
         apply_index_preference!
@@ -64,6 +67,7 @@ module Cequel
 
       def find_each(options = {}, &block)
         unless ::Kernel.block_given?
+          puts __method__
           return to_enum(:find_each, options)
         end
         find_in_batches(options) { |batch| batch.each(&block) }
@@ -71,6 +75,7 @@ module Cequel
 
       def find_each_row(options = {}, &block)
         unless ::Kernel.block_given?
+          puts __method__
           return to_enum(:find_each_row, options)
         end
         find_rows_in_batches(options) { |batch| batch.each(&block) }
