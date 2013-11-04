@@ -12,6 +12,7 @@ module Cequel
       end
 
       def each(&block)
+        ::Kernel.puts ::Kernel.__method__
         if block
           each_row do |row|
             result = hydrate(row)
@@ -27,20 +28,20 @@ module Cequel
       end
 
       def each_row(&block)
+        ::Kernel.puts ::Kernel.__method__
         if block
           apply_index_preference!
           @data_sets.each do |data_set|
             data_set.each(&block)
           end
         else
-          ::Kernel.puts ::Kernel.__method__
           to_enum(:each_row)
         end
       end
 
       def find_in_batches(options = {})
+        ::Kernel.puts ::Kernel.__method__
         unless ::Kernel.block_given?
-          ::Kernel.puts ::Kernel.__method__
           return to_enum(:find_in_batches, options)
         end
         find_rows_in_batches(options) do |batch|
@@ -66,22 +67,23 @@ module Cequel
       end
 
       def find_each(options = {}, &block)
+        ::Kernel.puts ::Kernel.__method__
         unless ::Kernel.block_given?
-          ::Kernel.puts ::Kernel.__method__
           return to_enum(:find_each, options)
         end
         find_in_batches(options) { |batch| batch.each(&block) }
       end
 
       def find_each_row(options = {}, &block)
+        ::Kernel.puts ::Kernel.__method__
         unless ::Kernel.block_given?
-          ::Kernel.puts ::Kernel.__method__
           return to_enum(:find_each_row, options)
         end
         find_rows_in_batches(options) { |batch| batch.each(&block) }
       end
 
       def first
+        ::Kernel.puts ::Kernel.__method__
         apply_index_preference!
         @data_sets.each do |data_set|
           row = hydrate(data_set.first)
@@ -91,6 +93,7 @@ module Cequel
       end
 
       def count
+        ::Kernel.puts ::Kernel.__method__
         if restriction_columns == [@clazz.key_alias]
           ::Kernel.raise ::Cequel::Model::InvalidQuery,
             "Meaningless to perform count with key row restrictions"
@@ -100,14 +103,17 @@ module Cequel
       end
 
       def size
+        ::Kernel.puts ::Kernel.__method__
         count
       end
 
       def length
+        ::Kernel.puts ::Kernel.__method__
         to_a.length
       end
 
       def update_all(changes)
+        ::Kernel.puts ::Kernel.__method__
         keys = keys()
         unless keys.empty?
           @clazz.column_family.where(key_alias => keys).update(changes)
@@ -115,10 +121,12 @@ module Cequel
       end
 
       def destroy_all
+        ::Kernel.puts ::Kernel.__method__
         each { |instance| instance.destroy }
       end
 
       def delete_all
+        ::Kernel.puts ::Kernel.__method__
         if @data_sets.length == 1
           if @data_sets.first.row_specifications.length == 0
             return @data_sets.first.truncate
@@ -133,34 +141,40 @@ module Cequel
       end
 
       def find(*keys, &block)
+        ::Kernel.puts ::Kernel.__method__
         if block then super
         else with_scope(self) { @clazz.find(*keys) }
         end
       end
 
       def any?(&block)
+        ::Kernel.puts ::Kernel.__method__
         if block then super
         else count > 0
         end
       end
 
       def none?(&block)
+        ::Kernel.puts ::Kernel.__method__
         if block then super
         else empty?
         end
       end
 
       def empty?
+        ::Kernel.puts ::Kernel.__method__
         count == 0
       end
 
       def one?(&block)
+        ::Kernel.puts ::Kernel.__method__
         if block then super
         else count == 1
         end
       end
 
       def keys
+        ::Kernel.puts ::Kernel.__method__
         key_alias = @clazz.key_alias
         [].tap do |keys|
           @data_sets.each do |data_set|
@@ -175,6 +189,7 @@ module Cequel
       end
 
       def lookup_keys(data_set)
+        ::Kernel.puts ::Kernel.__method__
         if data_set.row_specifications.length == 1
           specification = data_set.row_specifications.first
           if specification.respond_to?(:column)
@@ -186,28 +201,34 @@ module Cequel
       end
 
       def inspect
+        ::Kernel.puts ::Kernel.__method__
         to_a.inspect
       end
 
       def ==(other)
+        ::Kernel.puts ::Kernel.__method__
         to_a == other.to_a
       end
 
       def select(*rows, &block)
+        ::Kernel.puts ::Kernel.__method__
         if block then super
         else scoped { |data_set| data_set.select(*rows) }.validate!
         end
       end
 
       def select!(*rows)
+        ::Kernel.puts ::Kernel.__method__
         scoped { |data_set| data_set.select!(*rows) }.validate!
       end
 
       def consistency(consistency)
+        ::Kernel.puts ::Kernel.__method__
         scoped { |data_set| data_set.consistency(consistency) }
       end
 
       def where(*row_specification)
+        ::Kernel.puts ::Kernel.__method__
         if row_specification.length == 1 && ::Hash === row_specification.first
           row_specification.first.each_pair.inject(self) do |scope, (column, value)|
             scope.where_column_equals(column, value)
@@ -218,23 +239,28 @@ module Cequel
       end
 
       def where!(*row_specification)
+        ::Kernel.puts ::Kernel.__method__
         scoped { |data_set| data_set.where!(*row_specification) }
       end
 
       def limit(*row_specification)
+        ::Kernel.puts ::Kernel.__method__
         scoped { |data_set| data_set.limit(*row_specification) }
       end
 
       def scoped(&block)
+        ::Kernel.puts ::Kernel.__method__
         new_data_sets = @data_sets.map(&block)
         Scope.new(@clazz, new_data_sets)
       end
 
       def nil?
+        ::Kernel.puts ::Kernel.__method__
         false # for ActiveSupport delegation
       end
 
       def method_missing(method, *args, &block)
+        ::Kernel.puts ::Kernel.__method__
         if @clazz.respond_to?(method)
           @clazz.with_scope(self) do
             @clazz.__send__(method, *args, &block)
@@ -247,6 +273,7 @@ module Cequel
       protected
 
       def validate!
+        ::Kernel.puts ::Kernel.__method__
         columns = restriction_columns
         key_column = restriction_columns.include?(@clazz.key_alias)
         non_key_column = restriction_columns.any? do |column|
@@ -265,6 +292,7 @@ module Cequel
       end
 
       def where_column_equals(column, value)
+        ::Kernel.puts ::Kernel.__method__
         if [] == value
           Scope.new(@clazz, [])
         elsif column.to_sym != @clazz.key_alias && ::Array === value
@@ -283,6 +311,7 @@ module Cequel
       private
 
       def find_rows_in_range_batches(data_set, batch_size)
+        ::Kernel.puts ::Kernel.__method__
         key_alias = @clazz.key_alias
         key_alias = key_alias.upcase if key_alias =~ /key/i
         scope = data_set.limit(batch_size)
@@ -309,6 +338,7 @@ module Cequel
       end
 
       def find_rows_in_key_batches(data_set, keys, batch_size)
+        ::Kernel.puts ::Kernel.__method__
         key_alias = @clazz.key_alias
         keys.each_slice(batch_size) do |key_slice|
           yield data_set.where!(key_alias => key_slice).to_a
@@ -316,12 +346,14 @@ module Cequel
       end
 
       def key_only_select?
+        ::Kernel.puts ::Kernel.__method__
         key_only_select = @data_sets.all? do |data_set|
           data_set.select_columns == [@clazz.key_alias]
         end
       end
 
       def restriction_columns
+        ::Kernel.puts ::Kernel.__method__
         [].tap do |columns|
           @data_sets.each do |data_set|
             data_set.row_specifications.each do |specification|
@@ -334,6 +366,7 @@ module Cequel
       end
 
       def hydrate(row)
+        ::Kernel.puts ::Kernel.__method__
         return if row.nil?
         key_alias = @clazz.key_alias.to_s
         key_alias = key_alias.upcase if key_alias =~ /^key$/i
@@ -344,6 +377,7 @@ module Cequel
       end
 
       def apply_index_preference!
+        ::Kernel.puts ::Kernel.__method__
         return if @index_preference_applied
         # XXX seems ugly to do the in-place sort here.
         preference = @clazz.index_preference_columns

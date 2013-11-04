@@ -217,6 +217,7 @@ module Cequel
           # Noop -- yield no results
         end
       else
+        ::Kernel.puts ::Kernel.__method__
         enum_for(:each)
       end
     end

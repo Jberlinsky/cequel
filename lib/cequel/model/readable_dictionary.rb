@@ -117,6 +117,7 @@ module Cequel
       end
 
       def each_pair(options = {}, &block)
+        ::Kernel.puts ::Kernel.__method__
         return to_enum(:each_pair, options) unless block
 
         return @row.each_pair(&block) if @loaded
