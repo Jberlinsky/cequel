@@ -48,7 +48,7 @@ module Cequel
       end
 
       def find_rows_in_batches(options = {}, &block)
-        return to_enum(find_rows_in_batches, options) if block.nil?
+        return to_enum(:find_rows_in_batches, options) if block.nil?
         batch_size = options[:batch_size] || 1000
         apply_index_preference!
         @data_sets.each do |data_set|
