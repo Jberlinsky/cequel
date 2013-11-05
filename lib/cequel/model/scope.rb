@@ -64,7 +64,7 @@ module Cequel
 
       def find_each(options = {}, &block)
         unless ::Kernel.block_given?
-          return to_enum(:find_each, options)
+          return ::Enumerator.new(self, :find_each, options)
         end
         find_in_batches(options) { |batch| batch.each(&block) }
       end
